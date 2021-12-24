@@ -1,10 +1,14 @@
-%% Generate the data stream:
-clear
-close all
+%% General Notation:
 
+% Author : Ahmed Mokhtar Mahfouz
+% Sec : 1
+% BN : 30
+% Created: 15/12/2021 03:44 PM
+% last edit: 24/12/2021 05:28 PM
+%% Generate the data stream:
+clear ; clc ;close all
 N = 1200;
 data = randi([0,1],N,4);
-
 N0 = 0.01:0.01:10;
 N0_len = length(N0);
 %% Bulit 16-QAM:
@@ -28,7 +32,7 @@ QAM_data_mapped = [real(QAM_data_mapped_all) , imag(QAM_data_mapped_all)];
 v = randn(N,2);
 R = sqrt(sum(v.^2,2))/sqrt(2);
 QAM_data_channel = R.*QAM_data_mapped + v;
-% QAM_data_channel = QAM_data_mapped;
+
 % 3) Reciver:
 %------------
 QAM_data_recived = zeros(N,4); % Intialize Matrix After the demodulator
@@ -37,7 +41,7 @@ QAM_data_recived(:,1) = ((QAM_data_channel(:,2)>-2) & (QAM_data_channel(:,2)<2))
 QAM_data_recived(:,2) = (QAM_data_channel(:,2)>0)*1;
 QAM_data_recived(:,3) = ((QAM_data_channel(:,1)>-2) & (QAM_data_channel(:,1)<2))*1;
 QAM_data_recived(:,4) = (QAM_data_channel(:,1)>0)*1;
-% QAM_data_recived = QAM_data_recived./R;
+
 % show the output figure for each stage:
 %---------------------------------------
 figure
@@ -69,12 +73,12 @@ for i = 1:N0_len
     % 2) The channel:
     %----------------
     v = sqrt(N0(i)/2)*randn(N,2);
-%     R = sqrt(sum(v.^2,2))/(sqrt(2)*sqrt(N0(i)/2));
+    
     QAM_data_channel = R.*QAM_data_mapped + v;
     QAM_data_channel = QAM_data_channel./R;
-%     QAM_data_channel = QAM_data_mapped;
+    
     % 3) Reciver:
-    %------------   3421
+    %------------
     QAM_data_recived(:,1) = ((QAM_data_channel(:,2)>-2) & (QAM_data_channel(:,2)<2))*1;
     QAM_data_recived(:,2) = (QAM_data_channel(:,2)>0)*1;
     QAM_data_recived(:,3) = ((QAM_data_channel(:,1)>-2) & (QAM_data_channel(:,1)<2))*1;
@@ -138,8 +142,10 @@ end
 
 figure
 semilogy(10*log(2.5./(N0)),BER_coded_QAM)
+xlabel('SNR (dB)'); ylabel('BER')
 hold on
 semilogy(10*log(2.5./(N0)),BER_QAM)
+xlabel('SNR (dB)'); ylabel('BER')
 legend('Coded 16-QAM BER','UnCoded 16-QAM BER')
 grid
 %% Clean variables to reduce memorey usage:
@@ -163,7 +169,6 @@ QPSK_data_mapped = [real(QPSK_data_mapped_all) , imag(QPSK_data_mapped_all)];
 v = randn(N,2);
 R = sqrt(sum(v.^2,2));
 QPSK_data_channel = R.*QPSK_data_mapped + v;
-% QPSK_data_channel = QPSK_data_mapped;
 
 % 3) Reciver:
 %------------
@@ -202,7 +207,7 @@ for i = 1:N0_len
     % 2) The channel:
     %----------------
     v = sqrt(N0(i)/2)*randn(N,2);
-%     R = sqrt(sum(v.^2,2))/(sqrt(2)*sqrt(N0(i)/2));
+    
     QPSK_data_channel = R.*QPSK_data_mapped + v;
     QPSK_data_channel = QPSK_data_channel ./R; 
     % 3) Reciver:
@@ -258,8 +263,10 @@ end
 %-------------------------------------------------------------
 figure
 semilogy(10*log(1./N0),BER_coded_QPSK)
+xlabel('SNR (dB)'); ylabel('BER')
 hold on
 semilogy(10*log(1./(N0)),BER_QPSK)
+xlabel('SNR (dB)'); ylabel('BER')
 legend('Coded QPSK BER','UnCoded QPSK BER')
 grid
 %% Clean variables to reduce memorey usage:
@@ -287,7 +294,7 @@ N0_len = length(N0);
 % 1) Interliver:
 %---------------
 x = 4*64;  % 4: number of bits ber symbols, 64: number of symbols
-if (mod(N,x)~=0)    % Pad the data wiht zeros to make it multiable of 64
+if (mod(N,x)~=0)    % Pad the data wiht zeros to make it multiple of 64
     QAM_interliving = [data; zeros(x-mod(N,x),1)];
 else
     QAM_interliving = data;
@@ -322,7 +329,6 @@ QAM_IFFT = ifft(QAM_data_mapped_all,64);
 
 % 4) Cyclic extention:
 %---------------------
-clear QAM_cyclic    % clean to stop concatinating it while making multi run
 QAM_cyclic = [QAM_IFFT(49:64,:); QAM_IFFT];
 
 BER_QAM_AWGN = zeros(length(N0),1);
@@ -383,14 +389,12 @@ for j = 1:length(N0)
     for i = 1: size(QAM_AWGN_dinterlived,3)
         QAM_AWGN_dinterlived(:,:,i) =  QAM_AWGN_dinterlived(:,:,i)';
     end
-    % data3=reshape(QAM_Freq_demaped(:),16,16,[])';
     QAM_AWGN_final = QAM_AWGN_dinterlived(1:length(data))';
     
     QAM_Freq_dinterlived =reshape(QAM_Freq_demaped(:),16,16,[]);
     for i = 1: size(QAM_Freq_dinterlived,3)
         QAM_Freq_dinterlived(:,:,i) =  QAM_Freq_dinterlived(:,:,i)';
     end
-    % data3=reshape(QAM_Freq_demaped(:),16,16,[])';
     QAM_Freq_final = QAM_Freq_dinterlived(1:length(data))';
     
     BER_QAM_AWGN(j) = 1-sum(QAM_AWGN_final == data)/N;
@@ -400,13 +404,17 @@ end
 
 % 1) Interliver:
 %---------------
-x = 4*64;  
+x = 3*4*21; % 3 coded, 4 bits symbol, 21 symbol,
 
-if (mod(M,x)~=0)
+if (mod(M,x)~=0)  % padd with zeros to make the length of *x
     QAM_interliving_coded = [data_coded; zeros(x-mod(M,x),1)];
 else
     QAM_interliving_coded = data_coded;
 end
+
+QAM_interliving_coded = reshape(QAM_interliving_coded,[], x);
+QAM_interliving_coded = [QAM_interliving_coded, zeros(size(QAM_interliving_coded,1),256-x)];
+QAM_interliving_coded = QAM_interliving_coded(:);
 
 QAM_interliving_coded = reshape(QAM_interliving_coded,16,16,[]);
 for i =1: size(QAM_interliving_coded,3)
@@ -428,7 +436,6 @@ QAM_data_mapped_all_coded = (QAM_data_coded == 0)*(-3-3i) + (QAM_data_coded == 1
     +(QAM_data_coded == 10)*(3+3i) + (QAM_data_coded == 11)*(3+1i)...
     +(QAM_data_coded == 12)*(1-3i) + (QAM_data_coded == 13)*(1-1i)...
     +(QAM_data_coded == 14)*(1+3i) + (QAM_data_coded == 15)*(1+1i);
-
 QAM_data_mapped_all_coded = reshape(QAM_data_mapped_all_coded,64,[]);
 
 % 3) IFFT:
@@ -496,14 +503,20 @@ for j = 1:length(N0)
     for i = 1: size(QAM_AWGN_dinterlived_coded,3)
         QAM_AWGN_dinterlived_coded(:,:,i) =  QAM_AWGN_dinterlived_coded(:,:,i)';
     end
-    % data3=reshape(QAM_Freq_demaped(:),16,16,[])';
+    QAM_AWGN_dinterlived_coded = reshape(QAM_AWGN_dinterlived_coded,[],256);
+    QAM_AWGN_dinterlived_coded = QAM_AWGN_dinterlived_coded(:,1:x);
+    QAM_AWGN_dinterlived_coded = QAM_AWGN_dinterlived_coded(:);
+    
     QAM_AWGN_recived_coded = QAM_AWGN_dinterlived_coded(1:length(data_coded))';
     
     QAM_Freq_dinterlived_coded =reshape(QAM_Freq_demaped_coded(:),16,16,[]);
     for i = 1: size(QAM_Freq_dinterlived_coded,3)
         QAM_Freq_dinterlived_coded(:,:,i) =  QAM_Freq_dinterlived_coded(:,:,i)';
     end
-    % data3=reshape(QAM_Freq_demaped(:),16,16,[])';
+	QAM_Freq_dinterlived_coded = reshape(QAM_Freq_dinterlived_coded,[],256);
+    QAM_Freq_dinterlived_coded = QAM_Freq_dinterlived_coded(:,1:x);
+    QAM_Freq_dinterlived_coded = QAM_Freq_dinterlived_coded(:);
+
     QAM_Freq_recived_coded = QAM_Freq_dinterlived_coded(1:length(data_coded))';
     
     QAM_AWGN_final_coded = zeros(size(data));
@@ -526,15 +539,19 @@ end
 %% Show the output:
 figure
 semilogy(10*log(2.5./N0),BER_QAM_Freq_coded)
+xlabel('SNR (dB)'); ylabel('BER')
 hold on
 semilogy(10*log(2.5./(N0)),BER_QAM_Freq)
+xlabel('SNR (dB)'); ylabel('BER')
 legend('Coded QAM FREQ BER','UnCoded QAM FREQ BER coded')
 grid
 
 figure
 semilogy(10*log(2.5./N0),BER_QAM_AWGN_coded)
+xlabel('SNR (dB)'); ylabel('BER')
 hold on
 semilogy(10*log(2.5./(N0)),BER_QAM_AWGN)
+xlabel('SNR (dB)'); ylabel('BER')
 legend('Coded QAM AWGN BER','UnCoded QAM AWGN BER coded')
 grid
 
@@ -576,9 +593,6 @@ QPSK_cyclic = [QPSK_IFFT(49:64,:); QPSK_IFFT];
 
 BER_QPSK_AWGN = zeros(length(N0),1);
 BER_QPSK_Freq = zeros(length(N0),1);
-
-
-
 for j = 1:length(N0)
     % 5) channel:
     %------------
@@ -619,7 +633,6 @@ for j = 1:length(N0)
     QPSK_AWGN_demaped = zeros(size(QPSK_interlived));
     QPSK_AWGN_demaped(:,1) = (QPSK_AWGN_FFT(:,2)>0);
     QPSK_AWGN_demaped(:,2) = (QPSK_AWGN_FFT(:,1)>0);
-    
     %=>Frequency selective:
     QPSK_Freq_demaped = zeros(size(QPSK_interlived));
     QPSK_Freq_demaped(:,1) = (QPSK_Freq_FFT(:,2)>0);
@@ -631,7 +644,6 @@ for j = 1:length(N0)
     for i = 1: size(QPSK_AWGN_dinterlived,3)
         QPSK_AWGN_dinterlived(:,:,i) =  QPSK_AWGN_dinterliving(:,:,i)';
     end
-    % data3=reshape(QPSK_Freq_demaped(:),16,16,[])';
     QPSK_AWGN_final = QPSK_AWGN_dinterlived(1:length(data))';
     
     QPSK_Freq_dinterliving =reshape(QPSK_Freq_demaped(:),16,8,[]);
@@ -639,31 +651,26 @@ for j = 1:length(N0)
     for i = 1: size(QPSK_Freq_dinterlived,3)
         QPSK_Freq_dinterlived(:,:,i) =  QPSK_Freq_dinterliving(:,:,i)';
     end
-    
     QPSK_Freq_final = QPSK_Freq_dinterlived(1:length(data))';
     
     BER_QPSK_AWGN(j) = 1-sum(QPSK_AWGN_final == data)/N;
     BER_QPSK_Freq(j) = 1-sum(QPSK_Freq_final == data)/N;
 end
 
-figure
-semilogy(10*log(1./N0),BER_QPSK_AWGN)
-hold on
-semilogy(10*log(1./(N0)),BER_QPSK_Freq)
-legend('Coded QPSK BER','UnCoded QPSK BER')
-grid
-
 %% Bulit QPSK coded:
 
 % 1) Interliver:
 %---------------
-x = 2*64;
+x = 2*21*3;
 
 if (mod(M,x)~=0)    % Pad the data wiht zeros to make it multiable of 64
     QPSK_interliving_coded = [data_coded; zeros(x-mod(M,x),1)];
 else
     QPSK_interliving_coded = data_coded;
 end
+QPSK_interliving_coded = reshape(QPSK_interliving_coded,[],x);  % padding with zero at the end of 64 IFFT
+QPSK_interliving_coded = [QPSK_interliving_coded, zeros(size(QPSK_interliving_coded,1),128-x)];
+QPSK_interliving_coded=QPSK_interliving_coded(:);
 
 QPSK_interliving_coded= reshape(QPSK_interliving_coded,8,16,[]);
 QPSK_interlived_coded =zeros(size(QPSK_interliving_coded,2),size(QPSK_interliving_coded,1),size(QPSK_interliving_coded,3));
@@ -691,13 +698,11 @@ QPSK_cyclic_coded = [QPSK_IFFT_coded(49:64,:); QPSK_IFFT_coded];
 
 BER_QPSK_AWGN_coded = zeros(length(N0),1);
 BER_QPSK_Freq_coded = zeros(length(N0),1);
-
 for j = 1:length(N0)
     % 5) channel:
     %------------
     %=>AWGN:
     QPSK_AWGN_coded = QPSK_cyclic_coded + sqrt(N0(j)/2)*(randn(size(QPSK_cyclic_coded))+1i*randn(size(QPSK_cyclic_coded)));
-    
     %=>Frequency selective:
     h=[0.8 0 0 0 0 0 0 0 0 0 0.6];        % Filter
     QPSK_Freq_coded = zeros(size(QPSK_cyclic_coded,1)+size(h,2)-1,size(QPSK_cyclic_coded,2));
@@ -744,7 +749,9 @@ for j = 1:length(N0)
     for i = 1: size(QPSK_AWGN_dinterlived_coded,3)
         QPSK_AWGN_dinterlived_coded(:,:,i) =  QPSK_AWGN_dinterliving_coded(:,:,i)';
     end
-    % data3=reshape(QPSK_Freq_demaped(:),16,16,[])';
+    QPSK_AWGN_dinterlived_coded = QPSK_AWGN_dinterlived_coded(:);  % remove the zero padded of the 64 IFFT
+    QPSK_AWGN_dinterlived_coded = reshape(QPSK_AWGN_dinterlived_coded,[],128);
+    QPSK_AWGN_dinterlived_coded = QPSK_AWGN_dinterlived_coded(:,1:x);
     QPSK_AWGN_recived_coded = QPSK_AWGN_dinterlived_coded(1:length(data_coded))';
     
     QPSK_Freq_dinterliving_coded =reshape(QPSK_Freq_demaped_coded(:),16,8,[]);
@@ -752,7 +759,9 @@ for j = 1:length(N0)
     for i = 1: size(QPSK_Freq_dinterlived_coded,3)
         QPSK_Freq_dinterlived_coded(:,:,i) =  QPSK_Freq_dinterliving_coded(:,:,i)';
     end
-    % data3=reshape(QPSK_Freq_demaped(:),16,16,[])';
+    QPSK_Freq_dinterlived_coded = QPSK_Freq_dinterlived_coded(:);  % remove the zero padded of the 64 IFFT
+    QPSK_Freq_dinterlived_coded = reshape(QPSK_Freq_dinterlived_coded,[],128);
+    QPSK_Freq_dinterlived_coded = QPSK_Freq_dinterlived_coded(:,1:x);
     QPSK_Freq_recived_coded = QPSK_Freq_dinterlived_coded(1:length(data_coded))';
     
     QPSK_AWGN_final_coded = zeros(size(data));
@@ -767,27 +776,25 @@ for j = 1:length(N0)
         QPSK_Freq_final_coded(k) = (sum(QPSK_Freq_recived_coded(i:i+2))>1)*1;
         k=k+1;
     end
-    
-    
-    
-    BER_QPSK_AWGN_coded(j) = 1-sum(QPSK_AWGN_final_coded == data)/N;
-    
-    
+    BER_QPSK_AWGN_coded(j) = 1-sum(QPSK_AWGN_final_coded == data)/N; 
     BER_QPSK_Freq_coded(j) = 1-sum(QPSK_Freq_final_coded == data)/N;
 end
 
 %% Show the output:
 figure
 semilogy(10*log(1./N0),BER_QPSK_Freq_coded)
+xlabel('SNR (dB)'); ylabel('BER')
 hold on
 semilogy(10*log(1./(N0)),BER_QPSK_Freq)
+xlabel('SNR (dB)'); ylabel('BER')
 legend('Coded QPSK FREQ BER','UnCoded QPSK FREQ BER coded')
 grid
 
 figure
 semilogy(10*log(1./N0),BER_QPSK_AWGN_coded)
+xlabel('SNR (dB)'); ylabel('BER')
 hold on
 semilogy(10*log(1./(N0)),BER_QPSK_AWGN)
+xlabel('SNR (dB)'); ylabel('BER')
 legend('Coded QPSK AWGN BER','UnCoded QPSK AWGN BER coded')
 grid
-
