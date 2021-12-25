@@ -436,11 +436,11 @@ QAM_data_mapped_all_coded = (QAM_data_coded == 0)*(-3-3i) + (QAM_data_coded == 1
     +(QAM_data_coded == 10)*(3+3i) + (QAM_data_coded == 11)*(3+1i)...
     +(QAM_data_coded == 12)*(1-3i) + (QAM_data_coded == 13)*(1-1i)...
     +(QAM_data_coded == 14)*(1+3i) + (QAM_data_coded == 15)*(1+1i);
-QAM_data_mapped_all_coded = reshape(QAM_data_mapped_all_coded,64,[]);
+QAM_data_mapped_all_coded = reshape(QAM_data_mapped_all_coded,64,[])/sqrt(3);
 
 % 3) IFFT:
 %---------
-QAM_IFFT_coded = ifft(QAM_data_mapped_all_coded,64);
+QAM_IFFT_coded = ifft(QAM_data_mapped_all_coded,64)*sqrt(3);     % *sqrt(3) eq to compare with -2/sqrt(3) in the demapper
 
 % 4) Cyclic extention:
 %---------------------
@@ -686,11 +686,11 @@ QPSK_data_coded = QPSK_interlived_coded(:,1) + QPSK_interlived_coded(:,2)*2;
 
 QPSK_data_mapped_all_coded = (QPSK_data_coded == 0)*(-1-1i) + (QPSK_data_coded == 1)*(-1+1i)...
     +(QPSK_data_coded == 2)*(1-1i) + (QPSK_data_coded == 3)*(1+1i);
-QPSK_data_mapped_all_coded = reshape(QPSK_data_mapped_all_coded,64,[]);
+QPSK_data_mapped_all_coded = reshape(QPSK_data_mapped_all_coded,64,[])/sqrt(3);
 
 % 3) IFFT:
 %---------
-QPSK_IFFT_coded = ifft(QPSK_data_mapped_all_coded,64);
+QPSK_IFFT_coded = ifft(QPSK_data_mapped_all_coded,64)*sqrt(3); % *sqrt(3) eq to compare with -2/sqrt(3) in the demapper
 
 % 4) Cyclic extention:
 %---------------------
